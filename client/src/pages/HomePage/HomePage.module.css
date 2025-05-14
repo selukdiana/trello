@@ -1,4 +1,5 @@
 .home {
+  padding: 50px 0;
 }
 .content {
   display: grid;
@@ -7,13 +8,44 @@
   gap: 20px;
 }
 
+.title {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title p {
+  cursor: pointer;
+  color: rgb(164, 181, 180);
+}
+
 .board {
   width: 100%;
   height: 150px;
   border-radius: 3px;
-  background-color: rgb(141, 228, 223);
+  background-color: rgb(87, 175, 170);
   padding: 10px;
   cursor: pointer;
+}
+
+.board:hover {
+  transform: translateY(-3%);
+}
+
+.boardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.boardHeader svg {
+  height: 15px;
+  margin-left: 10px;
+}
+
+.boardHeader svg:hover {
+  fill: rgb(85, 88, 88);
 }
 
 .addBoard {

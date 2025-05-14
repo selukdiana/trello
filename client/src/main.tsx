@@ -4,6 +4,9 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { HomePage } from "./pages/HomePage";
 import { Layout } from "./pages/Layout";
+import { BoardPage } from "./pages/BoardPage";
+import { Provider } from "react-redux";
+import store from "./store";
 
 const router = createBrowserRouter([
   {
@@ -13,11 +16,17 @@ const router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
+      {
+        path: "/:board",
+        element: <BoardPage />,
+      },
     ],
   },
 ]);
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router}></RouterProvider>
+    <Provider store={store}>
+      <RouterProvider router={router}></RouterProvider>
+    </Provider>
   </StrictMode>
 );
