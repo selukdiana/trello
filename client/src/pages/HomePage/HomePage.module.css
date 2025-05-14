@@ -1,0 +1,22 @@
+.home {
+}
+.content {
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.board {
+  width: 100%;
+  height: 150px;
+  border-radius: 3px;
+  background-color: rgb(141, 228, 223);
+  padding: 10px;
+  cursor: pointer;
+}
+
+.addBoard {
+  background-color: transparent;
+  border: 1px dotted whitesmoke;
+}
