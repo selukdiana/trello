@@ -4,8 +4,8 @@ import styles from "./Task.module.css";
 
 interface TaskProps {
   task: TaskInterface;
-  handleEditTaskClick: (id: number) => void;
-  handleDeleteTaskClick: (id: number) => void;
+  handleEditTaskClick: (id: string) => void;
+  handleDeleteTaskClick: (id: string) => void;
 }
 export const Task = ({
   task,

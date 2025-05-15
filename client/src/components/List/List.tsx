@@ -1,6 +1,8 @@
 import {
   addTask,
+  deleteList,
   deleteTask,
+  editList,
   editTask,
   type List as ListInterface,
 } from "../../store/slices/listsSlice";
@@ -12,6 +14,7 @@ import { Modal } from "../Modal";
 import { useForm } from "react-hook-form";
 import classNames from "classnames";
 import { useAppDispatch } from "../../store/hooks";
+import { RxCross2 } from "react-icons/rx";
 
 interface ListProps {
   list: ListInterface;
@@ -19,7 +22,7 @@ interface ListProps {
 interface FormInputs {
   taskDescription: string;
 }
-let taskId: null | number = null;
+let taskId: null | string = null;
 
 export const List = ({ list }: ListProps) => {
   const tasks = list.tasks;
@@ -31,7 +34,7 @@ export const List = ({ list }: ListProps) => {
       taskDescription: "",
     },
   });
-  const handleEditTaskClick = (id: number) => {
+  const handleEditTaskClick = (id: string) => {
     taskId = id;
     const task = tasks.find((task) => task.id === id);
     reset({
@@ -40,7 +43,7 @@ export const List = ({ list }: ListProps) => {
     setIsAddTaskModalOpen(true);
   };
 
-  const handleDeleteTaskClick = (id: number) => {
+  const handleDeleteTaskClick = (id: string) => {
     dispatch(deleteTask({ listId: list.id, taskId: id }));
   };
 
@@ -50,6 +53,9 @@ export const List = ({ list }: ListProps) => {
       taskDescription: "",
     });
     setIsAddTaskModalOpen(true);
+  };
+  const handleDeleteListClick = () => {
+    dispatch(deleteList(list.id));
   };
   const onSubmit = (data: FormInputs) => {
     if (taskId !== null) {
@@ -73,10 +79,12 @@ export const List = ({ list }: ListProps) => {
         {isChangeHeader ? (
           <input
             className="modalInput"
-            onBlur={() => {
-              setIsChangeHeader(false);
-            }}
+            onBlur={() => setIsChangeHeader(false)}
+            onChange={(e) =>
+              dispatch(editList({ listId: list.id, name: e.target.value }))
+            }
             autoFocus={true}
+            value={list.name}
           />
         ) : (
           <h4
@@ -107,6 +115,15 @@ export const List = ({ list }: ListProps) => {
           + Add task
         </p>
       </div>
+      <span
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteListClick();
+        }}
+        className={styles.deleteList}
+      >
+        <RxCross2 />
+      </span>
       {isAddTaskModalOpen
         ? createPortal(
             <Modal setIsOpen={setIsAddTaskModalOpen} title="New Task">

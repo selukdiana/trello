@@ -1,8 +1,38 @@
 .board {
 }
 .content {
-  overflow-y: auto;
+  height: calc(100vh - 100px);
+  overflow: hidden;
+  overflow-x: auto;
   display: flex;
   gap: 20px;
   align-items: flex-start;
+  padding: 15px;
+}
+.addList {
+  border: 1px dotted white;
+  min-width: 300px;
+  padding: 10px 5px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.addList:hover {
+  background-color: currentColor;
+  border: 1px solid black;
+  transform: translateY(-5%);
+}
+
+.addList p {
+  color: white;
+  font-size: 12px;
+}
+
+.addListInput {
+  width: 300px;
+  outline: none;
+  border: none;
+  padding: 10px 5px;
+  border-radius: 10px;
+  background-color: #44546f;
+  color: white;
 }
