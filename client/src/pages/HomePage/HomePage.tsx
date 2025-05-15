@@ -11,6 +11,7 @@ import {
 import { FaTrash } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useNavigate } from "react-router";
 
 interface FormInputs {
   boardName: string;
@@ -24,6 +25,7 @@ let mode = Mode.CREATE_BOARD;
 let boardId: IdType = null;
 
 export const HomePage = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const boardsArr = useAppSelector((state) => state.boards.data);
   const [isAddBoardModalOpen, setIsAddBoardModalOpen] = useState(false);
@@ -55,6 +57,9 @@ export const HomePage = () => {
     reset({ boardName: "" }); //ne reset()?
     setIsAddBoardModalOpen(true);
   };
+  const handleBoardClick = (id: IdType) => {
+    navigate(`/board?id=${id}`);
+  };
 
   return (
     <section className={styles.home}>
@@ -66,7 +71,11 @@ export const HomePage = () => {
         <div className={styles.content}>
           {boardsArr.map((board) => {
             return (
-              <div className={styles.board} key={board.id}>
+              <div
+                className={styles.board}
+                key={board.id}
+                onClick={() => handleBoardClick(board.id)}
+              >
                 <div className={styles.boardHeader}>
                   <h3>{board.name}</h3>
                   <div>

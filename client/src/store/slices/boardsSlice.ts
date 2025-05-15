@@ -39,7 +39,7 @@ const boardsSlice = createSlice({
     addBoard(state, action: PayloadAction<Pick<Board, "name">>) {
       const boardName = action.payload.name;
       state.data.push({
-        id: state.data.length,
+        id: state.data.length + 1,
         name: boardName,
       });
     },
