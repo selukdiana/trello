@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import styles from "./Header.module.css";
 
 export const Header = () => {
@@ -5,7 +6,9 @@ export const Header = () => {
     <header className={styles.header}>
       <div className="container">
         <div className={styles.content}>
-          <h1>Trello</h1>
+          <Link to="/">
+            <h1>Trello</h1>
+          </Link>
           <div className={styles.burger}>
             <span></span>
           </div>

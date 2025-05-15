@@ -30,7 +30,7 @@ body {
   color: #1b1f23;
   outline: none;
   border: 1px solid black;
-  border-radius: 3px;
+  border-radius: 10px;
   padding: 3px 10px;
   font-size: 16px;
   width: 80%;
@@ -44,10 +44,10 @@ body {
   display: block;
   cursor: pointer;
   outline: none;
-  background-color: rgb(87, 175, 170);
+  background-color: gray;
   padding: 5px 10px;
   border: none;
-  border-radius: 3px;
+  border-radius: 10px;
   font-size: 16px;
   margin-top: 20px;
 }

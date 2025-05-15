@@ -1,7 +1,8 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { v4 } from "uuid";
 
 interface Board {
-  id: number | null;
+  id: string;
   name: string;
 }
 interface BoardsState {
@@ -10,23 +11,23 @@ interface BoardsState {
 const initialState: BoardsState = {
   data: [
     {
-      id: 1,
+      id: "1",
       name: "Board 1",
     },
     {
-      id: 2,
+      id: "2",
       name: "Board 2",
     },
     {
-      id: 3,
+      id: "3",
       name: "Board 3",
     },
     {
-      id: 4,
+      id: "4",
       name: "Board 4",
     },
     {
-      id: 5,
+      id: "5",
       name: "Board 5",
     },
   ],
@@ -39,7 +40,7 @@ const boardsSlice = createSlice({
     addBoard(state, action: PayloadAction<Pick<Board, "name">>) {
       const boardName = action.payload.name;
       state.data.push({
-        id: state.data.length + 1,
+        id: v4(),
         name: boardName,
       });
     },

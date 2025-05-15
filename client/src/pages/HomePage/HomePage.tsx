@@ -16,13 +16,7 @@ import { useNavigate } from "react-router";
 interface FormInputs {
   boardName: string;
 }
-type IdType = number | null;
-const Mode = {
-  CREATE_BOARD: 0,
-  EDIT_BOARD: 1,
-};
-let mode = Mode.CREATE_BOARD;
-let boardId: IdType = null;
+let boardId: string | null = null;
 
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -35,29 +29,30 @@ export const HomePage = () => {
     },
   });
   const onSubmit = (data: FormInputs) => {
-    if (mode === Mode.EDIT_BOARD) {
+    if (boardId !== null) {
       dispatch(editBoard({ id: boardId, name: data.boardName }));
     } else {
       dispatch(addBoard({ name: data.boardName }));
     }
     setIsAddBoardModalOpen(false);
   };
-  const handleDeleteBoard = (id: IdType) => {
+  const handleDeleteBoard = (id: string) => {
     dispatch(removeBoard({ id }));
   };
-  const handleEditBoard = (id: IdType) => {
+  const handleEditBoard = (id: string) => {
     boardId = id;
-    mode = Mode.EDIT_BOARD;
     const board = boardsArr.find((board) => board.id === id);
-    reset({ boardName: board?.name });
+    if (board) {
+      reset({ boardName: board.name });
+    }
     setIsAddBoardModalOpen(true);
   };
   const handleCreateBoard = () => {
-    mode = Mode.CREATE_BOARD;
-    reset({ boardName: "" }); //ne reset()?
+    boardId = null;
+    reset({ boardName: "" });
     setIsAddBoardModalOpen(true);
   };
-  const handleBoardClick = (id: IdType) => {
+  const handleBoardClick = (id: string) => {
     navigate(`/board?id=${id}`);
   };
 
@@ -66,7 +61,14 @@ export const HomePage = () => {
       <div className="container">
         <div className={styles.title}>
           <h2>My Boards</h2>
-          <p onClick={() => handleCreateBoard()}>+ Create new board</p>
+          <p
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCreateBoard();
+            }}
+          >
+            + Create new board
+          </p>
         </div>
         <div className={styles.content}>
           {boardsArr.map((board) => {
@@ -77,14 +79,20 @@ export const HomePage = () => {
                 onClick={() => handleBoardClick(board.id)}
               >
                 <div className={styles.boardHeader}>
-                  <h3>{board.name}</h3>
+                  <h4>{board.name}</h4>
                   <div>
                     <FaEdit
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleEditBoard(board.id);
                       }}
                     />
-                    <FaTrash onClick={() => handleDeleteBoard(board.id)} />
+                    <FaTrash
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteBoard(board.id);
+                      }}
+                    />
                   </div>
                 </div>
               </div>
