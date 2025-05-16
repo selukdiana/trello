@@ -15,6 +15,11 @@ import { useForm } from "react-hook-form";
 import classNames from "classnames";
 import { useAppDispatch } from "../../store/hooks";
 import { RxCross2 } from "react-icons/rx";
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 interface ListProps {
   list: ListInterface;
@@ -25,6 +30,8 @@ interface FormInputs {
 let taskId: null | string = null;
 
 export const List = ({ list }: ListProps) => {
+  const { setNodeRef } = useDroppable({ id: list.id });
+  const style = {};
   const tasks = list.tasks;
   const dispatch = useAppDispatch();
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
@@ -62,7 +69,7 @@ export const List = ({ list }: ListProps) => {
       dispatch(
         editTask({
           listId: list.id,
-          task: { id: taskId, value: data.taskDescription },
+          task: { id: taskId, value: data.taskDescription, listId: list.id },
         })
       );
     } else {
@@ -74,7 +81,7 @@ export const List = ({ list }: ListProps) => {
   };
 
   return (
-    <div className={styles.list}>
+    <div className={styles.list} style={style} ref={setNodeRef}>
       <div className={styles.title}>
         {isChangeHeader ? (
           <input
@@ -97,14 +104,25 @@ export const List = ({ list }: ListProps) => {
         )}
       </div>
       <div className={styles.listContent}>
-        {tasks.map((task) => (
-          <Task
-            key={task.id}
-            task={task}
-            handleEditTaskClick={handleEditTaskClick}
-            handleDeleteTaskClick={handleDeleteTaskClick}
-          />
-        ))}
+        <SortableContext
+          items={tasks.map((task) => task.id)}
+          // strategy={verticalListSortingStrategy}
+        >
+          {tasks.map((task) => (
+            <Task
+              key={task.id}
+              task={task}
+              handleEditTaskClick={handleEditTaskClick}
+              handleDeleteTaskClick={handleDeleteTaskClick}
+            />
+          ))}
+        </SortableContext>
+        {tasks.length === 0 && (
+          <div style={{ backgroundColor: "black", height: "50px" }}>
+            {" "}
+            Drop here!
+          </div>
+        )}
         <p
           className={styles.addTask}
           onClick={(e) => {

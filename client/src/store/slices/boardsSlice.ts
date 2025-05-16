@@ -11,23 +11,23 @@ interface BoardsState {
 const initialState: BoardsState = {
   data: [
     {
-      id: "1",
+      id: v4(),
       name: "Board 1",
     },
     {
-      id: "2",
+      id: v4(),
       name: "Board 2",
     },
     {
-      id: "3",
+      id: v4(),
       name: "Board 3",
     },
     {
-      id: "4",
+      id: v4(),
       name: "Board 4",
     },
     {
-      id: "5",
+      id: v4(),
       name: "Board 5",
     },
   ],

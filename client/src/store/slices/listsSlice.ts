@@ -1,7 +1,9 @@
+import { arrayMove } from "@dnd-kit/sortable";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { v4 } from "uuid";
 
 export interface Task {
+  listId: string;
   id: string;
   value: string;
 }
@@ -28,30 +30,32 @@ interface EditListPayload {
 const initialState: ListsState = {
   data: [
     {
-      id: "1",
+      id: "rrtgtgt",
       name: "List1",
       tasks: [
         {
-          id: "1",
+          listId: "rrtgtgt",
+          id: v4(),
           value:
             "aa hihoih hoi ghghj hgujg gujgjuhuju juhjuhju ujhjkhj hjuuhjhjuu hjhjuh hjhkjh  hjhjkh hjkhjhjh jhjhjh jhjuhjh   j hjjh",
         },
       ],
     },
     {
-      id: "2",
+      id: "gyhggui",
       name: "List2",
       tasks: [
-        { id: "1", value: "aa hihoih hoi " },
+        { listId: "gyhggui", id: v4(), value: "aa hihoih hoi " },
         {
-          id: "2",
+          listId: "gyhggui",
+          id: v4(),
           value:
             "gygg uuiyui iyuiyh  uiyui yiyo  ioi guigui uhihy iooihoi ihoi oihoi ",
         },
       ],
     },
-    { id: "3", name: "List3", tasks: [] },
-    { id: "4", name: "List4", tasks: [] },
+    { id: v4(), name: "List3", tasks: [] },
+    { id: v4(), name: "List4", tasks: [] },
   ],
 };
 
@@ -81,7 +85,7 @@ const listsSlise = createSlice({
       const { listId, taskDescription } = action.payload;
       const list = state.data.find((list) => list.id === listId);
       if (list) {
-        list.tasks.push({ id: v4(), value: taskDescription });
+        list.tasks.push({ listId: list.id, id: v4(), value: taskDescription });
       }
     },
     editTask(state, action: PayloadAction<EditTaskPayload>) {
@@ -100,9 +104,65 @@ const listsSlise = createSlice({
         list.tasks = list.tasks.filter((task) => task.id !== taskId);
       }
     },
+    moveTask(
+      state,
+      action: PayloadAction<{ activeTask: Task; overTask: Task }>
+    ) {
+      // debugger;
+      const { activeTask, overTask } = action.payload;
+      if (!activeTask || !overTask) return;
+      const activeListId = activeTask.listId;
+      const overListId = overTask.listId;
+
+      const activeList = state.data.find((list) => list.id === activeListId);
+      if (!activeList) return;
+      const active = activeList.tasks.find((task) => task.id === activeTask.id);
+      if (!active) return;
+      active.listId = overListId;
+      activeList.tasks = activeList.tasks.filter(
+        (task) => task.id !== active.id
+      );
+
+      const overList = state.data.find((list) => list.id === overListId);
+      if (!overList) return;
+
+      const overIndex = overList.tasks.findIndex(
+        (task) => task.id === overTask.id
+      );
+
+      if (overIndex == -1) return;
+
+      overList.tasks.splice(overIndex, 0, active);
+    },
+
+    moveTaskWithinList(
+      state,
+      action: PayloadAction<{ activeTask: Task; overTask: Task }>
+    ) {
+      const { activeTask, overTask } = action.payload;
+      const listId = activeTask.listId;
+      const list = state.data.find((list) => list.id === listId);
+      if (!list) return;
+      const activeIndex = list.tasks.findIndex(
+        (task) => task.id === activeTask.id
+      );
+      const overIndex = list.tasks.findIndex((task) => task.id === overTask.id);
+      if (activeIndex === -1 || overIndex === -1) return;
+
+      const newTasks = arrayMove(list.tasks, activeIndex, overIndex);
+      list.tasks = newTasks;
+    },
   },
 });
 
-export const { addList, deleteList, editList, addTask, editTask, deleteTask } =
-  listsSlise.actions;
+export const {
+  addList,
+  deleteList,
+  editList,
+  addTask,
+  editTask,
+  deleteTask,
+  moveTask,
+  moveTaskWithinList,
+} = listsSlise.actions;
 export default listsSlise.reducer;
