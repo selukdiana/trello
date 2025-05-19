@@ -30,7 +30,13 @@ interface FormInputs {
 let taskId: null | string = null;
 
 export const List = ({ list }: ListProps) => {
-  const { setNodeRef } = useDroppable({ id: list.id });
+  const { setNodeRef } = useDroppable({
+    id: list.id,
+    data: {
+      type: "list",
+      list: list,
+    },
+  });
   const style = {};
   const tasks = list.tasks;
   const dispatch = useAppDispatch();
@@ -106,7 +112,7 @@ export const List = ({ list }: ListProps) => {
       <div className={styles.listContent}>
         <SortableContext
           items={tasks.map((task) => task.id)}
-          // strategy={verticalListSortingStrategy}
+          strategy={verticalListSortingStrategy}
         >
           {tasks.map((task) => (
             <Task
@@ -118,9 +124,8 @@ export const List = ({ list }: ListProps) => {
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div style={{ backgroundColor: "black", height: "50px" }}>
-            {" "}
-            Drop here!
+          <div className={styles.dropArea}>
+            <span>Drop here!</span>
           </div>
         )}
         <p

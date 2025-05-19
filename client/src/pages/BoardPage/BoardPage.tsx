@@ -5,7 +5,8 @@ import { List } from "../../components/List";
 import { useState } from "react";
 import {
   addList,
-  moveTask,
+  moveTaskBetweenLists,
+  moveTaskToEmptyList,
   moveTaskWithinList,
   type Task as TaskType,
 } from "../../store/slices/listsSlice";
@@ -21,8 +22,6 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { createPortal } from "react-dom";
-import { Task } from "../../components/Task";
 
 export const BoardPage = () => {
   const dispatch = useAppDispatch();
@@ -44,27 +43,32 @@ export const BoardPage = () => {
     setActiveTask(event.active.id);
   };
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) {
-      setActiveTask(null);
-      return;
-    }
-    const activeListId = active.data.current?.task.listId;
-    const overListId = over.data.current?.task.listId;
+    // const { active, over } = event;
+    // if (!over) {
+    //   setActiveTask(null);
+    //   return;
+    // }
+    // const activeListId = active.data.current?.task.listId;
+    // const overListId = over.data.current?.task.listId;
 
-    if (!activeListId || !overListId) {
-      setActiveTask(null);
-      return;
-    }
+    // if (active.id && over.id && !overListId) {
+    //   console.log("empty");
+    // }
+    // if (!activeListId || !overListId) {
+    //   setActiveTask(null);
+    //   return;
+    // }
 
-    if (activeListId === overListId && active.id !== over.id) {
-      dispatch(
-        moveTaskWithinList({
-          activeTask: active.data.current?.task,
-          overTask: over.data.current?.task,
-        })
-      );
-    }
+    dispatch(); //na server dnd changes
+
+    // if (activeListId === overListId && active.id !== over.id) {
+    //   dispatch(
+    //     moveTaskWithinList({
+    //       activeTask: active.data.current?.task,
+    //       overTask: over.data.current?.task,
+    //     })
+    //   );
+    // }
   };
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
@@ -73,19 +77,61 @@ export const BoardPage = () => {
     if (!over) return;
     const activeId = active.id;
     const overId = over.id;
-    const activeListId = active.data.current?.task.listId;
-    const overListId = over.data.current?.task.listId;
-    if (!activeListId || !overListId) return;
-    if (activeListId === overListId && activeId !== overId) return;
-    if (activeListId === overListId) return;
-    dispatch(
-      moveTask({
-        activeTask: active.data.current?.task,
-        overTask: over.data.current?.task,
-      })
-    );
+    if (
+      active.data.current?.type === "task" &&
+      over.data.current?.type === "task"
+    ) {
+      const activeListId = active.data.current?.task.listId;
+      const overListId = over.data.current?.task.listId;
+      if (!activeListId || !overListId) return;
+      if (activeListId === overListId) {
+        dispatch(
+          moveTaskWithinList({
+            activeTask: active.data.current?.task,
+            overTask: over.data.current?.task,
+          })
+        );
+      } else {
+        dispatch(
+          moveTaskBetweenLists({
+            activeTask: active.data.current?.task,
+            overTask: over.data.current?.task,
+          })
+        );
+      }
+      return;
+    }
+    // if (
+    //   active.data.current?.type === "task" &&
+    //   over.data.current?.type === "task"
+    // ) {
+    //   const activeListId = active.data.current?.task.listId;
+    //   const overListId = over.data.current?.task.listId;
+    //   if (!activeListId || !overListId) return;
+    //   if (activeListId === overListId && activeId !== overId) return;
+    //   if (activeListId === overListId) return;
+    //   dispatch(
+    //     moveTaskBetweenLists({
+    //       activeTask: active.data.current?.task,
+    //       overTask: over.data.current?.task,
+    //     })
+    //   );
+    //   return;
+    // }
+    if (
+      active.data.current?.type === "task" &&
+      over.data.current?.type === "list" &&
+      over.data.current.list.tasks.length === 0
+    ) {
+      dispatch(
+        moveTaskToEmptyList({
+          activeTask: active.data.current.task,
+          overList: over.data.current.list,
+        })
+      );
+    }
   };
-  // const findListId = (taskId: number) => {return taskId.};
+
   return (
     <DndContext
       onDragEnd={handleDragEnd}

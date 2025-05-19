@@ -14,6 +14,11 @@
   position: relative;
 }
 
+.draggingTask {
+  z-index: 999;
+  border: 1px solid rgb(0, 85, 255);
+}
+
 .trash {
   position: absolute;
   top: 5px;

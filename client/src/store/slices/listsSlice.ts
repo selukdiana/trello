@@ -104,7 +104,7 @@ const listsSlise = createSlice({
         list.tasks = list.tasks.filter((task) => task.id !== taskId);
       }
     },
-    moveTask(
+    moveTaskBetweenLists(
       state,
       action: PayloadAction<{ activeTask: Task; overTask: Task }>
     ) {
@@ -152,6 +152,25 @@ const listsSlise = createSlice({
       const newTasks = arrayMove(list.tasks, activeIndex, overIndex);
       list.tasks = newTasks;
     },
+
+    moveTaskToEmptyList(
+      state,
+      action: PayloadAction<{ activeTask: Task; overList: List }>
+    ) {
+      const { activeTask, overList } = action.payload;
+      const activeList = state.data.find(
+        (list) => list.id === activeTask.listId
+      );
+      if (!activeList) return;
+      activeList.tasks = activeList.tasks.filter(
+        (task) => task.id !== activeTask.id
+      );
+
+      const newTask: Task = { ...activeTask, listId: overList.id };
+      const targrtList = state.data.find((list) => list.id === overList.id);
+      if (!targrtList) return;
+      targrtList.tasks.push(newTask);
+    },
   },
 });
 
@@ -162,7 +181,8 @@ export const {
   addTask,
   editTask,
   deleteTask,
-  moveTask,
+  moveTaskBetweenLists,
   moveTaskWithinList,
+  moveTaskToEmptyList,
 } = listsSlise.actions;
 export default listsSlise.reducer;

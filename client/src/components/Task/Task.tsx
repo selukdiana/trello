@@ -3,6 +3,7 @@ import { RxCross2 } from "react-icons/rx";
 import styles from "./Task.module.css";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
+import classNames from "classnames";
 
 interface TaskProps {
   task: TaskInterface;
@@ -60,7 +61,9 @@ export const Task = ({
   return (
     <p
       key={task.id}
-      className={styles.task}
+      className={
+        isDragging ? classNames(styles.draggingTask, styles.task) : styles.task
+      }
       onClick={(e) => {
         e.stopPropagation();
         handleEditTaskClick(task.id);
