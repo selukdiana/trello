@@ -50,7 +50,6 @@ export const BoardPage = () => {
     // }
     // const activeListId = active.data.current?.task.listId;
     // const overListId = over.data.current?.task.listId;
-
     // if (active.id && over.id && !overListId) {
     //   console.log("empty");
     // }
@@ -58,9 +57,7 @@ export const BoardPage = () => {
     //   setActiveTask(null);
     //   return;
     // }
-
-    dispatch(); //na server dnd changes
-
+    // dispatch(); //na server dnd changes
     // if (activeListId === overListId && active.id !== over.id) {
     //   dispatch(
     //     moveTaskWithinList({
