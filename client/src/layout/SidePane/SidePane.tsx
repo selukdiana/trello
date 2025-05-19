@@ -1,4 +1,5 @@
-import styles from "./SidePane.module.css";
+import { cross, sidePane, log as logStyles } from "./SidePane.css";
+
 const logs = [
   {
     id: "1",
@@ -18,12 +19,12 @@ interface SidePaneProps {
 }
 export const SidePane = ({ toggleSidePane }: SidePaneProps) => {
   return (
-    <div className={styles.sidePane}>
-      <div className={styles.cross} onClick={() => toggleSidePane(false)}>
+    <div className={sidePane}>
+      <div className={cross} onClick={() => toggleSidePane(false)}>
         <span>X</span>
       </div>
       {logs.map((log) => (
-        <p key={log.id} className={styles.log}>
+        <p key={log.id} className={logStyles}>
           {log.value}
         </p>
       ))}

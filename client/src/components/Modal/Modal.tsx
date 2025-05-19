@@ -1,5 +1,5 @@
 import type React from "react";
-import styles from "./Modal.module.css";
+import { body, content, header, modal, wrapper } from "./Modal.css";
 
 interface ModalProps {
   title: string;
@@ -9,10 +9,10 @@ interface ModalProps {
 
 export const Modal = ({ title, setIsOpen, children }: ModalProps) => {
   return (
-    <div className={styles.modal}>
-      <div className={styles.wrapper} onClick={() => setIsOpen(false)}>
-        <div className={styles.content} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.header}>
+    <div className={modal}>
+      <div className={wrapper} onClick={() => setIsOpen(false)}>
+        <div className={content} onClick={(e) => e.stopPropagation()}>
+          <div className={header}>
             <h3>{title}</h3>
             <span
               onClick={() => {
@@ -22,7 +22,7 @@ export const Modal = ({ title, setIsOpen, children }: ModalProps) => {
               x
             </span>
           </div>
-          <div className={styles.body}>{children}</div>
+          <div className={body}>{children}</div>
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
 import { useSearchParams } from "react-router";
-import styles from "./BoardPage.module.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { List } from "../../components/List";
 import { useState } from "react";
@@ -22,6 +21,11 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
+import {
+  addListInput,
+  content,
+  addList as addListStyles,
+} from "./BoardPage.css";
 
 export const BoardPage = () => {
   const dispatch = useAppDispatch();
@@ -137,14 +141,14 @@ export const BoardPage = () => {
       sensors={sensors}
       collisionDetection={closestCorners}
     >
-      <div className={styles.board}>
-        <div className={styles.content}>
+      <div>
+        <div className={content}>
           {listsArr.map((list) => (
             <List list={list} key={list.id} />
           ))}
           {isAddList ? (
             <input
-              className={styles.addListInput}
+              className={addListInput}
               onBlur={(e) => {
                 dispatch(addList(e.target.value));
                 setIsAddList(false);
@@ -153,7 +157,7 @@ export const BoardPage = () => {
             />
           ) : (
             <div
-              className={styles.addList}
+              className={addListStyles}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsAddList(true);

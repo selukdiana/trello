@@ -1,14 +1,14 @@
 import { Link } from "react-router";
-import styles from "./Header.module.css";
 import { SidePane } from "../SidePane";
 import { useState } from "react";
+import { burger, content, header } from "./Header.css";
 
 export const Header = () => {
   const [isSidePaneOpened, setIsSidePaneOpened] = useState(false);
   return (
-    <header className={styles.header}>
+    <header className={header}>
       <div className="container">
-        <div className={styles.content}>
+        <div className={content}>
           <Link to="/">
             <h1>Trello</h1>
           </Link>
@@ -16,7 +16,7 @@ export const Header = () => {
             <SidePane toggleSidePane={setIsSidePaneOpened} />
           ) : null}
           <div
-            className={styles.burger}
+            className={burger}
             onClick={() => {
               setIsSidePaneOpened(true);
             }}

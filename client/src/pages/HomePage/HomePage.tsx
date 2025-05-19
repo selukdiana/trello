@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Modal } from "../../components/Modal";
-import styles from "./HomePage.module.css";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import {
@@ -12,6 +11,13 @@ import { FaTrash } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { useNavigate } from "react-router";
+import {
+  content,
+  home,
+  title,
+  board as boardStyles,
+  boardHeader,
+} from "./HomePage.css";
 
 interface FormInputs {
   boardName: string;
@@ -57,9 +63,9 @@ export const HomePage = () => {
   };
 
   return (
-    <section className={styles.home}>
+    <section className={home}>
       <div className="container">
-        <div className={styles.title}>
+        <div className={title}>
           <h2>My Boards</h2>
           <p
             onClick={(e) => {
@@ -70,15 +76,15 @@ export const HomePage = () => {
             + Create new board
           </p>
         </div>
-        <div className={styles.content}>
+        <div className={content}>
           {boardsArr.map((board) => {
             return (
               <div
-                className={styles.board}
+                className={boardStyles}
                 key={board.id}
                 onClick={() => handleBoardClick(board.id)}
               >
-                <div className={styles.boardHeader}>
+                <div className={boardHeader}>
                   <h4>{board.name}</h4>
                   <div>
                     <FaEdit

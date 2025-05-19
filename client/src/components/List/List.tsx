@@ -6,7 +6,6 @@ import {
   editTask,
   type List as ListInterface,
 } from "../../store/slices/listsSlice";
-import styles from "./List.module.css";
 import { Task } from "../Task";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -20,6 +19,13 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import {
+  dropArea,
+  list as listStyles,
+  title,
+  addTask as addTaskStyles,
+  deleteList as deleteListStyles,
+} from "./List.css";
 
 interface ListProps {
   list: ListInterface;
@@ -87,8 +93,8 @@ export const List = ({ list }: ListProps) => {
   };
 
   return (
-    <div className={styles.list} style={style} ref={setNodeRef}>
-      <div className={styles.title}>
+    <div className={listStyles} style={style} ref={setNodeRef}>
+      <div className={title}>
         {isChangeHeader ? (
           <input
             className="modalInput"
@@ -109,7 +115,7 @@ export const List = ({ list }: ListProps) => {
           </h4>
         )}
       </div>
-      <div className={styles.listContent}>
+      <div>
         <SortableContext
           items={tasks.map((task) => task.id)}
           strategy={verticalListSortingStrategy}
@@ -124,12 +130,12 @@ export const List = ({ list }: ListProps) => {
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div className={styles.dropArea}>
+          <div className={dropArea}>
             <span>Drop here!</span>
           </div>
         )}
         <p
-          className={styles.addTask}
+          className={addTaskStyles}
           onClick={(e) => {
             e.stopPropagation();
             handleAddTaskClick();
@@ -143,7 +149,7 @@ export const List = ({ list }: ListProps) => {
           e.stopPropagation();
           handleDeleteListClick();
         }}
-        className={styles.deleteList}
+        className={deleteListStyles}
       >
         <RxCross2 />
       </span>
