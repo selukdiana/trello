@@ -59,9 +59,9 @@ export const BoardPage = () => {
     if (activeListId === overListId && active.id !== over.id) {
       dispatch(
         moveWithinList({
-          listId: activeListId,
-          activeId: active.id,
-          overId: over.id,
+          listId: activeListId as string,
+          activeId: active.id as string,
+          overId: over.id as string,
         })
       );
     }
@@ -83,7 +83,12 @@ export const BoardPage = () => {
     if (activeListId === overListId) return;
 
     dispatch(
-      move({ activeListId, overListId, activeId: active?.id, overId: over?.id })
+      move({
+        activeListId: activeListId as string,
+        overListId: overListId as string,
+        activeId: active?.id as string,
+        overId: over?.id as string,
+      })
     );
   };
   useEffect(() => {

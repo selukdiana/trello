@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Task from "../models/taskModel";
+import Log from "../models/logModel";
 
 export const getAllTasks = async (req: Request, res: Response) => {
   const listId = req.query.listId as string;
@@ -9,6 +10,9 @@ export const getAllTasks = async (req: Request, res: Response) => {
 export const createTask = async (req: Request, res: Response) => {
   const data = req.body;
   const task = await Task.create({ ...data });
+  await Log.create({
+    value: `created task <${task.value}>`,
+  });
   res.status(200).json(task);
 };
 
@@ -23,6 +27,9 @@ export const updateTask = async (req: Request, res: Response) => {
     value,
   });
   task.save();
+  await Log.create({
+    value: `updated task <${task.value}>`,
+  });
   res.status(200).json(task);
 };
 
@@ -34,5 +41,8 @@ export const deleteTask = async (req: Request, res: Response) => {
     return;
   }
   await Task.destroy({ where: { id } });
+  await Log.create({
+    value: `deleted task <${task.value}>`,
+  });
   res.status(200).json(task);
 };

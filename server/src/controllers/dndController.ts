@@ -1,3 +1,4 @@
+import Log from "../models/logModel";
 import Task from "../models/taskModel";
 import { Request, Response } from "express";
 
@@ -17,5 +18,8 @@ export const moveTaskWithinList = async (req: Request, res: Response) => {
     listId: activeTask.listId,
   });
   over?.save();
+  await Log.create({
+    value: `task moved <${activeTask.value}>`,
+  });
   res.status(200).json("ok");
 };

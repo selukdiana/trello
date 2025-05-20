@@ -1,23 +1,18 @@
+import { useEffect } from "react";
 import { cross, sidePane, log as logStyles } from "./SidePane.css";
-
-const logs = [
-  {
-    id: "1",
-    value: "hbjuhi",
-  },
-  {
-    id: "2",
-    value: "hbjuhi hujuh u hjhn hbju  uhuh u huhu huhiuhuhu u",
-  },
-  {
-    id: "3",
-    value: "hbjuhi hujuh u hjhn hbju  uhuh u huhu huhiuhuhu u",
-  },
-];
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { fetchLogs } from "../../store/slices/logsSlice";
 interface SidePaneProps {
   toggleSidePane: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export const SidePane = ({ toggleSidePane }: SidePaneProps) => {
+  const dispatch = useAppDispatch();
+  const logs = useAppSelector((state) => state.logs.data);
+  const appState = useAppSelector((state) => state);
+  useEffect(() => {
+    dispatch(fetchLogs());
+  }, [appState]);
+
   return (
     <div className={sidePane}>
       <div className={cross} onClick={() => toggleSidePane(false)}>
