@@ -4,7 +4,6 @@ import {
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import { v4 } from "uuid";
 
 export interface Task {
   listId: string;
@@ -20,48 +19,9 @@ export interface List {
 interface ListsState {
   data: List[];
 }
-interface EditTaskPayload {
-  listId: string;
-  task: Task;
-}
-interface DeleteTaskPayload {
-  listId: string;
-  taskId: string;
-}
-interface EditListPayload {
-  listId: string;
-  name: string;
-}
+
 const initialState: ListsState = {
-  data: [
-    // {
-    //   id: "rrtgtgt",
-    //   name: "List1",
-    //   tasks: [
-    //     {
-    //       listId: "rrtgtgt",
-    //       id: v4(),
-    //       value:
-    //         "aa hihoih hoi ghghj hgujg gujgjuhuju juhjuhju ujhjkhj hjuuhjhjuu hjhjuh hjhkjh  hjhjkh hjkhjhjh jhjhjh jhjuhjh   j hjjh",
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: "gyhggui",
-    //   name: "List2",
-    //   tasks: [
-    //     { listId: "gyhggui", id: v4(), value: "aa hihoih hoi " },
-    //     {
-    //       listId: "gyhggui",
-    //       id: v4(),
-    //       value:
-    //         "gygg uuiyui iyuiyh  uiyui yiyo  ioi guigui uhihy iooihoi ihoi oihoi ",
-    //     },
-    //   ],
-    // },
-    // { id: v4(), name: "List3", tasks: [] },
-    // { id: v4(), name: "List4", tasks: [] },
-  ],
+  data: [],
 };
 
 export const fetchAllLists = createAsyncThunk(
@@ -70,7 +30,16 @@ export const fetchAllLists = createAsyncThunk(
     const response = await fetch(
       `http://localhost:8080/api/getAllLists?id=${id}`
     );
-    const data: List[] = await response.json();
+    const lists: Omit<List, "tasks">[] = await response.json();
+    const data = await Promise.all(
+      lists.map(async (list) => {
+        const response = await fetch(
+          `http://localhost:8080/api/getAllTasks?listId=${list.id}`
+        );
+        const tasks = await response.json();
+        return { ...list, tasks };
+      })
+    );
     return data;
   }
 );
@@ -120,41 +89,57 @@ export const fetchDeleteList = createAsyncThunk(
   }
 );
 
+export const fetchCreateTask = createAsyncThunk(
+  "lists/fetchCreateTask",
+  async (data: Omit<Task, "id">) => {
+    const response = await fetch(`http://localhost:8080/api/createTask`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const task: Task = await response.json();
+    return task;
+  }
+);
+export const fetchUpdateTask = createAsyncThunk(
+  "lists/fetchUpdateTask",
+  async (data: { id: string; value: string }) => {
+    const response = await fetch(`http://localhost:8080/api/updateTask`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const task: Task = await response.json();
+    return task;
+  }
+);
+export const fetchDeleteTask = createAsyncThunk(
+  "lists/fetchDeleteTask",
+  async (data: { id: string }) => {
+    const response = await fetch(
+      `http://localhost:8080/api/deleteTask?id=${data.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    const task: Task = await response.json();
+    return task;
+  }
+);
+
 const listsSlise = createSlice({
   name: "lists",
   initialState,
   reducers: {
-    addTask(
-      state,
-      action: PayloadAction<{ listId: string; taskDescription: string }>
-    ) {
-      const { listId, taskDescription } = action.payload;
-      const list = state.data.find((list) => list.id === listId);
-      if (list) {
-        list.tasks.push({ listId: list.id, id: v4(), value: taskDescription });
-      }
-    },
-    editTask(state, action: PayloadAction<EditTaskPayload>) {
-      const { listId, task } = action.payload;
-      const taskId = task.id;
-      const list = state.data.find((list) => list.id === listId);
-      if (list) {
-        const taskIndex = list.tasks.findIndex((elem) => elem.id === taskId);
-        list.tasks[taskIndex] = task;
-      }
-    },
-    deleteTask(state, action: PayloadAction<DeleteTaskPayload>) {
-      const { listId, taskId } = action.payload;
-      const list = state.data.find((list) => list.id === listId);
-      if (list) {
-        list.tasks = list.tasks.filter((task) => task.id !== taskId);
-      }
-    },
     moveTaskBetweenLists(
       state,
       action: PayloadAction<{ activeTask: Task; overTask: Task }>
     ) {
-      // debugger;
       const { activeTask, overTask } = action.payload;
       if (!activeTask || !overTask) return;
       const activeListId = activeTask.listId;
@@ -246,15 +231,40 @@ const listsSlise = createSlice({
         state.data = state.data.filter((list) => list.id !== id);
       }
     );
+    builder.addCase(
+      fetchCreateTask.fulfilled,
+      (state, action: PayloadAction<Task>) => {
+        const task = action.payload;
+        const list = state.data.find((list) => list.id === task.listId);
+        if (list) {
+          list.tasks.push(task);
+        }
+      }
+    );
+    builder.addCase(
+      fetchUpdateTask.fulfilled,
+      (state, action: PayloadAction<Task>) => {
+        const task = action.payload;
+        const list = state.data.find((list) => list.id === task.listId);
+        if (list) {
+          const taskIndex = list.tasks.findIndex((elem) => elem.id === task.id);
+          list.tasks[taskIndex] = task;
+        }
+      }
+    );
+    builder.addCase(
+      fetchDeleteTask.fulfilled,
+      (state, action: PayloadAction<Task>) => {
+        const { listId, id } = action.payload;
+        const list = state.data.find((list) => list.id === listId);
+        if (list) {
+          list.tasks = list.tasks.filter((task) => task.id !== id);
+        }
+      }
+    );
   },
 });
 
-export const {
-  addTask,
-  editTask,
-  deleteTask,
-  moveTaskBetweenLists,
-  moveTaskWithinList,
-  moveTaskToEmptyList,
-} = listsSlise.actions;
+export const { moveTaskBetweenLists, moveTaskWithinList, moveTaskToEmptyList } =
+  listsSlise.actions;
 export default listsSlise.reducer;

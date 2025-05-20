@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import List from "../models/listModel";
+import Task from "../models/taskModel";
 
 export const getAllLists = async (req: Request, res: Response) => {
   const boardId = req.query.id as string;
@@ -11,9 +12,8 @@ export const createList = async (req: Request, res: Response) => {
   const data = req.body;
   const list = await List.create({
     ...data,
-    tasks: [],
   });
-  res.status(200).json({ id: list.id, name: list.name, tasks: list.tasks });
+  res.status(200).json({ id: list.id, name: list.name, tasks: [] });
 };
 
 export const updateListName = async (req: Request, res: Response) => {

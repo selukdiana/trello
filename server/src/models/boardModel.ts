@@ -1,6 +1,7 @@
 import sequelize from "../config/db";
 import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 import List from "./listModel";
+import Task from "./taskModel";
 
 interface BoardAttributes {
   id: string;

@@ -12,6 +12,12 @@ import {
   getAllLists,
   updateListName,
 } from "../controllers/listController";
+import {
+  createTask,
+  deleteTask,
+  getAllTasks,
+  updateTask,
+} from "../controllers/taskController";
 
 const router = express.Router();
 
@@ -24,5 +30,10 @@ router.get("/api/getAllLists", getAllLists);
 router.post("/api/createList", express.json(), createList);
 router.patch("/api/updateListName", bodyParser.json(), updateListName);
 router.delete("/api/deleteList", deleteList);
+
+router.get("/api/getAllTasks", getAllTasks);
+router.post("/api/createTask", express.json(), createTask);
+router.patch("/api/updateTask", bodyParser.json(), updateTask);
+router.delete("/api/deleteTask", deleteTask);
 
 export default router;

@@ -13,7 +13,6 @@ import {
 import {
   closestCorners,
   DndContext,
-  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -34,7 +33,6 @@ export const BoardPage = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id") as string;
   const [isAddList, setIsAddList] = useState(false);
-  //dispatch(lists by id)
   const listsArr = useAppSelector((state) => state.lists.data);
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -45,7 +43,7 @@ export const BoardPage = () => {
     useSensor(KeyboardSensor)
   );
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveTask(event.active.id);
+    setActiveTask(event.active.data.current?.task);
   };
   const handleDragEnd = (event: DragEndEvent) => {
     // const { active, over } = event;
@@ -103,23 +101,6 @@ export const BoardPage = () => {
       }
       return;
     }
-    // if (
-    //   active.data.current?.type === "task" &&
-    //   over.data.current?.type === "task"
-    // ) {
-    //   const activeListId = active.data.current?.task.listId;
-    //   const overListId = over.data.current?.task.listId;
-    //   if (!activeListId || !overListId) return;
-    //   if (activeListId === overListId && activeId !== overId) return;
-    //   if (activeListId === overListId) return;
-    //   dispatch(
-    //     moveTaskBetweenLists({
-    //       activeTask: active.data.current?.task,
-    //       overTask: over.data.current?.task,
-    //     })
-    //   );
-    //   return;
-    // }
     if (
       active.data.current?.type === "task" &&
       over.data.current?.type === "list" &&
@@ -175,12 +156,6 @@ export const BoardPage = () => {
           )}
         </div>
       </div>
-      {/* {createPortal(
-        <DragOverlay>
-          {activeTask && <Task task={activeTask}></Task>}
-        </DragOverlay>,
-        document.body
-      )} */}
     </DndContext>
   );
 };

@@ -1,9 +1,9 @@
 import {
-  addTask,
-  deleteTask,
-  editTask,
+  fetchCreateTask,
   fetchDeleteList,
+  fetchDeleteTask,
   fetchUpdateListName,
+  fetchUpdateTask,
   type List as ListInterface,
 } from "../../store/slices/listsSlice";
 import { Task } from "../Task";
@@ -64,7 +64,7 @@ export const List = ({ list }: ListProps) => {
   };
 
   const handleDeleteTaskClick = (id: string) => {
-    dispatch(deleteTask({ listId: list.id, taskId: id }));
+    dispatch(fetchDeleteTask({ id }));
   };
 
   const handleAddTaskClick = () => {
@@ -80,14 +80,14 @@ export const List = ({ list }: ListProps) => {
   const onSubmit = (data: FormInputs) => {
     if (taskId !== null) {
       dispatch(
-        editTask({
-          listId: list.id,
-          task: { id: taskId, value: data.taskDescription, listId: list.id },
+        fetchUpdateTask({
+          id: taskId,
+          value: data.taskDescription,
         })
       );
     } else {
       dispatch(
-        addTask({ listId: list.id, taskDescription: data.taskDescription })
+        fetchCreateTask({ listId: list.id, value: data.taskDescription })
       );
     }
     setIsAddTaskModalOpen(false);
