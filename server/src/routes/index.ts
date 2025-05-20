@@ -18,6 +18,7 @@ import {
   getAllTasks,
   updateTask,
 } from "../controllers/taskController";
+import { moveTaskWithinList } from "../controllers/dndController";
 
 const router = express.Router();
 
@@ -35,5 +36,7 @@ router.get("/api/getAllTasks", getAllTasks);
 router.post("/api/createTask", express.json(), createTask);
 router.patch("/api/updateTask", bodyParser.json(), updateTask);
 router.delete("/api/deleteTask", deleteTask);
+
+router.patch("/api/moveTaskWithinList", bodyParser.json(), moveTaskWithinList);
 
 export default router;

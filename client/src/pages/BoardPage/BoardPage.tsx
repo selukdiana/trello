@@ -5,10 +5,9 @@ import { useEffect, useState } from "react";
 import {
   fetchAllLists,
   fetchCreateList,
-  moveTaskBetweenLists,
-  moveTaskToEmptyList,
-  moveTaskWithinList,
-  type Task as TaskType,
+  fetchListsState,
+  move,
+  moveWithinList,
 } from "../../store/slices/listsSlice";
 import {
   closestCorners,
@@ -20,6 +19,7 @@ import {
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
+  type UniqueIdentifier,
 } from "@dnd-kit/core";
 import {
   addListInput,
@@ -29,11 +29,11 @@ import {
 
 export const BoardPage = () => {
   const dispatch = useAppDispatch();
-  const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id") as string;
   const [isAddList, setIsAddList] = useState(false);
   const listsArr = useAppSelector((state) => state.lists.data);
+  console.log(listsArr);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -42,79 +42,50 @@ export const BoardPage = () => {
     }),
     useSensor(KeyboardSensor)
   );
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveTask(event.active.data.current?.task);
-  };
+  const handleDragStart = (event: DragStartEvent) => {};
   const handleDragEnd = (event: DragEndEvent) => {
-    // const { active, over } = event;
-    // if (!over) {
-    //   setActiveTask(null);
-    //   return;
-    // }
-    // const activeListId = active.data.current?.task.listId;
-    // const overListId = over.data.current?.task.listId;
-    // if (active.id && over.id && !overListId) {
-    //   console.log("empty");
-    // }
-    // if (!activeListId || !overListId) {
-    //   setActiveTask(null);
-    //   return;
-    // }
-    // dispatch(); //na server dnd changes
-    // if (activeListId === overListId && active.id !== over.id) {
-    //   dispatch(
-    //     moveTaskWithinList({
-    //       activeTask: active.data.current?.task,
-    //       overTask: over.data.current?.task,
-    //     })
-    //   );
-    // }
-  };
-  const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    console.log(active);
-    console.log(over);
     if (!over) return;
-    const activeId = active.id;
-    const overId = over.id;
-    if (
-      active.data.current?.type === "task" &&
-      over.data.current?.type === "task"
-    ) {
-      const activeListId = active.data.current?.task.listId;
-      const overListId = over.data.current?.task.listId;
-      if (!activeListId || !overListId) return;
-      if (activeListId === overListId) {
-        dispatch(
-          moveTaskWithinList({
-            activeTask: active.data.current?.task,
-            overTask: over.data.current?.task,
-          })
-        );
-      } else {
-        dispatch(
-          moveTaskBetweenLists({
-            activeTask: active.data.current?.task,
-            overTask: over.data.current?.task,
-          })
-        );
-      }
-      return;
-    }
-    if (
-      active.data.current?.type === "task" &&
-      over.data.current?.type === "list" &&
-      over.data.current.list.tasks.length === 0
-    ) {
+
+    const activeListId = findListId(active.id);
+    const overListId = findListId(over.id);
+    if (!activeListId || !overListId) return;
+    dispatch(
+      fetchListsState({
+        activeTask: active.data.current?.task,
+        overTask: over.data.current?.task,
+      })
+    );
+    if (activeListId === overListId && active.id !== over.id) {
       dispatch(
-        moveTaskToEmptyList({
-          activeTask: active.data.current.task,
-          overList: over.data.current.list,
+        moveWithinList({
+          listId: activeListId,
+          activeId: active.id,
+          overId: over.id,
         })
       );
     }
   };
+  const findListId = (id: UniqueIdentifier) => {
+    if (listsArr.some((list) => list.id === id)) {
+      return id;
+    }
+    return listsArr.find((list) => list.tasks.some((task) => task.id === id))
+      ?.id;
+  };
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+    const activeListId = findListId(active.id);
+    const overListId = findListId(over.id);
 
+    if (!activeListId || !overListId) return;
+    if (activeListId === overListId) return;
+
+    dispatch(
+      move({ activeListId, overListId, activeId: active?.id, overId: over?.id })
+    );
+  };
   useEffect(() => {
     dispatch(fetchAllLists({ id }));
   }, []);

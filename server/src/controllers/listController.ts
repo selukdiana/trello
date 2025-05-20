@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import List from "../models/listModel";
-import Task from "../models/taskModel";
 
 export const getAllLists = async (req: Request, res: Response) => {
   const boardId = req.query.id as string;

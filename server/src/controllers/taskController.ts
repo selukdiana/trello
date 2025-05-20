@@ -1,7 +1,4 @@
 import { Request, Response } from "express";
-import List from "../models/listModel";
-import { v4 as uuid } from "uuid";
-import sequelize from "../config/db";
 import Task from "../models/taskModel";
 
 export const getAllTasks = async (req: Request, res: Response) => {

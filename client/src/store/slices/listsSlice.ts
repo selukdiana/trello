@@ -18,10 +18,14 @@ export interface List {
 }
 interface ListsState {
   data: List[];
+  active: Task | null;
+  over: Task | List | null;
 }
 
 const initialState: ListsState = {
   data: [],
+  active: null,
+  over: null,
 };
 
 export const fetchAllLists = createAsyncThunk(
@@ -132,75 +136,95 @@ export const fetchDeleteTask = createAsyncThunk(
   }
 );
 
+export const fetchListsState = createAsyncThunk(
+  "lists/fetchUpdateTask",
+  async (data: { activeTask: Task; overTask: Task }) => {
+    const { activeTask, overTask } = data;
+    const response = await fetch(
+      `http://localhost:8080/api/moveTaskWithinList`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          activeTask,
+          overTask,
+        }),
+      }
+    );
+    const status: string = await response.json();
+    return status;
+  }
+);
 const listsSlise = createSlice({
   name: "lists",
   initialState,
   reducers: {
-    moveTaskBetweenLists(
+    moveWithinList(
       state,
-      action: PayloadAction<{ activeTask: Task; overTask: Task }>
+      action: PayloadAction<{
+        listId: string;
+        activeId: string;
+        overId: string;
+      }>
     ) {
-      const { activeTask, overTask } = action.payload;
-      if (!activeTask || !overTask) return;
-      const activeListId = activeTask.listId;
-      const overListId = overTask.listId;
-
-      const activeList = state.data.find((list) => list.id === activeListId);
-      if (!activeList) return;
-      const active = activeList.tasks.find((task) => task.id === activeTask.id);
-      if (!active) return;
-      active.listId = overListId;
-      activeList.tasks = activeList.tasks.filter(
-        (task) => task.id !== active.id
-      );
-
-      const overList = state.data.find((list) => list.id === overListId);
-      if (!overList) return;
-
-      const overIndex = overList.tasks.findIndex(
-        (task) => task.id === overTask.id
-      );
-
-      if (overIndex == -1) return;
-
-      overList.tasks.splice(overIndex, 0, active);
-    },
-
-    moveTaskWithinList(
-      state,
-      action: PayloadAction<{ activeTask: Task; overTask: Task }>
-    ) {
-      const { activeTask, overTask } = action.payload;
-      const listId = activeTask.listId;
-      const list = state.data.find((list) => list.id === listId);
-      if (!list) return;
-      const activeIndex = list.tasks.findIndex(
-        (task) => task.id === activeTask.id
-      );
-      const overIndex = list.tasks.findIndex((task) => task.id === overTask.id);
+      const { listId, activeId, overId } = action.payload;
+      const listIndex = state.data.findIndex((list) => list.id === listId);
+      if (listIndex === -1) return;
+      const list = state.data[listIndex];
+      const activeIndex = list.tasks.findIndex((task) => task.id === activeId);
+      const overIndex = list.tasks.findIndex((task) => task.id === overId);
       if (activeIndex === -1 || overIndex === -1) return;
-
       const newTasks = arrayMove(list.tasks, activeIndex, overIndex);
       list.tasks = newTasks;
     },
-
-    moveTaskToEmptyList(
+    move(
       state,
-      action: PayloadAction<{ activeTask: Task; overList: List }>
+      action: PayloadAction<{
+        activeListId: string;
+        overListId: string;
+        activeId: string;
+        overId: string;
+      }>
     ) {
-      const { activeTask, overList } = action.payload;
-      const activeList = state.data.find(
-        (list) => list.id === activeTask.listId
-      );
-      if (!activeList) return;
-      activeList.tasks = activeList.tasks.filter(
-        (task) => task.id !== activeTask.id
-      );
+      const { activeListId, overListId, activeId, overId } = action.payload;
+      const activeList = state.data.find((list) => list.id === activeListId);
+      const activeTask = activeList?.tasks.find((task) => task.id === activeId);
+      if (!activeTask) return;
+      activeTask.listId = overListId;
+      const newData = state.data.map((list) => {
+        if (list.id === activeListId) {
+          return {
+            ...list,
+            tasks: list.tasks.filter((task) => task.id !== activeId),
+          };
+        }
+        if (list.id === overListId) {
+          if (overId === overListId) {
+            return {
+              ...list,
+              tasks: [...list.tasks, activeTask],
+            };
+          }
 
-      const newTask: Task = { ...activeTask, listId: overList.id };
-      const targrtList = state.data.find((list) => list.id === overList.id);
-      if (!targrtList) return;
-      targrtList.tasks.push(newTask);
+          const overItemIndex = list.tasks.findIndex(
+            (task) => task.id === overId
+          );
+          if (overItemIndex !== -1) {
+            return {
+              ...list,
+              tasks: [
+                ...list.tasks.slice(0, overItemIndex + 1),
+                activeTask,
+                ...list.tasks.slice(overItemIndex + 1),
+              ],
+            };
+          }
+        }
+        return list;
+      });
+      state.data = newData || [];
     },
   },
   extraReducers: (builder) => {
@@ -265,6 +289,5 @@ const listsSlise = createSlice({
   },
 });
 
-export const { moveTaskBetweenLists, moveTaskWithinList, moveTaskToEmptyList } =
-  listsSlise.actions;
+export const { move, moveWithinList } = listsSlise.actions;
 export default listsSlise.reducer;
