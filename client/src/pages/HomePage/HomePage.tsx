@@ -1,12 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "../../components/Modal";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
-import {
-  addBoard,
-  editBoard,
-  removeBoard,
-} from "../../store/slices/boardsSlice";
 import { FaTrash } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -18,6 +13,12 @@ import {
   board as boardStyles,
   boardHeader,
 } from "./HomePage.css";
+import {
+  fetchAllBoards,
+  fetchCreateBoard,
+  fetchDeleteBoard,
+  fetchUpdateBoard,
+} from "../../store/slices/boardsSlice";
 
 interface FormInputs {
   boardName: string;
@@ -36,14 +37,14 @@ export const HomePage = () => {
   });
   const onSubmit = (data: FormInputs) => {
     if (boardId !== null) {
-      dispatch(editBoard({ id: boardId, name: data.boardName }));
+      dispatch(fetchUpdateBoard({ id: boardId, name: data.boardName }));
     } else {
-      dispatch(addBoard({ name: data.boardName }));
+      dispatch(fetchCreateBoard({ name: data.boardName }));
     }
     setIsAddBoardModalOpen(false);
   };
   const handleDeleteBoard = (id: string) => {
-    dispatch(removeBoard({ id }));
+    dispatch(fetchDeleteBoard({ id }));
   };
   const handleEditBoard = (id: string) => {
     boardId = id;
@@ -61,6 +62,10 @@ export const HomePage = () => {
   const handleBoardClick = (id: string) => {
     navigate(`/board?id=${id}`);
   };
+
+  useEffect(() => {
+    dispatch(fetchAllBoards());
+  }, []);
 
   return (
     <section className={home}>

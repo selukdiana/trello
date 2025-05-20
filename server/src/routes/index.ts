@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/api/getAllBoards", getAllBoards);
 router.post("/api/createBoard", express.json(), createBoard);
-router.patch("/api/updateBoard/:id", bodyParser.json(), updateBoard);
-router.delete("/api/deleteBoard/:id", deleteBoard);
+router.patch("/api/updateBoard", bodyParser.json(), updateBoard);
+router.delete("/api/deleteBoard", deleteBoard);
 
 export default router;

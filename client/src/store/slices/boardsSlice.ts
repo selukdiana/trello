@@ -1,5 +1,8 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { v4 } from "uuid";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 
 interface Board {
   id: string;
@@ -9,52 +12,93 @@ interface BoardsState {
   data: Board[];
 }
 const initialState: BoardsState = {
-  data: [
-    {
-      id: v4(),
-      name: "Board 1",
-    },
-    {
-      id: v4(),
-      name: "Board 2",
-    },
-    {
-      id: v4(),
-      name: "Board 3",
-    },
-    {
-      id: v4(),
-      name: "Board 4",
-    },
-    {
-      id: v4(),
-      name: "Board 5",
-    },
-  ],
+  data: [],
 };
+
+export const fetchAllBoards = createAsyncThunk("boards/allBoards", async () => {
+  const response = await fetch("http://localhost:8080/api/getAllBoards");
+  const data = await response.json();
+  return data;
+});
+
+export const fetchCreateBoard = createAsyncThunk(
+  "boards/fetchCreateBoard",
+  async (data: { name: string }, { dispatch }) => {
+    const response = await fetch(`http://localhost:8080/api/createBoard`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const board = await response.json();
+    dispatch(createBoard(board));
+    return board;
+  }
+);
+
+export const fetchUpdateBoard = createAsyncThunk(
+  "boards/fetchUpdateBoard",
+  async (data: { id: string; name: string }, { dispatch }) => {
+    const response = await fetch(`http://localhost:8080/api/updateBoard`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const board = await response.json();
+    dispatch(updateBoard(board));
+    return board;
+  }
+);
+
+export const fetchDeleteBoard = createAsyncThunk(
+  "boards/fetchDeleteBoard",
+  async (data: { id: string }, { dispatch }) => {
+    const response = await fetch(
+      `http://localhost:8080/api/deleteBoard/?id=${data.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    const board = await response.json();
+    dispatch(deleteBoard(board));
+    return board;
+  }
+);
 
 const boardsSlice = createSlice({
   name: "boards",
   initialState,
   reducers: {
-    addBoard(state, action: PayloadAction<Pick<Board, "name">>) {
-      const boardName = action.payload.name;
+    createBoard(state, action: PayloadAction<Board>) {
+      const { id, name } = action.payload;
       state.data.push({
-        id: v4(),
-        name: boardName,
+        id,
+        name,
       });
     },
-    editBoard(state, action: PayloadAction<Board>) {
+    updateBoard(state, action: PayloadAction<Board>) {
       const { id, name } = action.payload;
       const index = state.data.findIndex((board) => board.id === id);
       state.data[index] = { id, name };
     },
-    removeBoard(state, action: PayloadAction<Pick<Board, "id">>) {
+    deleteBoard(state, action: PayloadAction<Board>) {
       const id = action.payload.id;
       state.data = state.data.filter((board) => board.id !== id);
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(fetchAllBoards.fulfilled, (state, action) => {
+      state.data = action.payload;
+    });
+    builder.addCase(fetchAllBoards.rejected, (state) => {
+      state.data = [];
+    });
+  },
 });
 
-export const { addBoard, removeBoard, editBoard } = boardsSlice.actions;
+export const { createBoard, updateBoard, deleteBoard } = boardsSlice.actions;
 export default boardsSlice.reducer;

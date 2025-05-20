@@ -1,8 +1,20 @@
 import sequelize from "../config/db";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 import List from "./listModel";
 
-const Board = sequelize.define("board", {
+interface BoardAttributes {
+  id: string;
+  name: string;
+}
+
+interface BoardCreationAttributes extends Optional<BoardAttributes, "id"> {}
+interface BoardInstance
+  extends Model<BoardAttributes, BoardCreationAttributes>,
+    BoardAttributes {
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+const Board = sequelize.define<BoardInstance>("board", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -14,5 +26,6 @@ const Board = sequelize.define("board", {
 });
 
 Board.hasMany(List);
+List.belongsTo(Board);
 
 export default Board;
