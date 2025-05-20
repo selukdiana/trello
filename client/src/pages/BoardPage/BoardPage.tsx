@@ -1,9 +1,10 @@
 import { useSearchParams } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { List } from "../../components/List";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  addList,
+  fetchAllLists,
+  fetchCreateList,
   moveTaskBetweenLists,
   moveTaskToEmptyList,
   moveTaskWithinList,
@@ -31,7 +32,7 @@ export const BoardPage = () => {
   const dispatch = useAppDispatch();
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const id = searchParams.get("id") as string;
   const [isAddList, setIsAddList] = useState(false);
   //dispatch(lists by id)
   const listsArr = useAppSelector((state) => state.lists.data);
@@ -133,6 +134,10 @@ export const BoardPage = () => {
     }
   };
 
+  useEffect(() => {
+    dispatch(fetchAllLists({ id }));
+  }, []);
+
   return (
     <DndContext
       onDragEnd={handleDragEnd}
@@ -150,7 +155,9 @@ export const BoardPage = () => {
             <input
               className={addListInput}
               onBlur={(e) => {
-                dispatch(addList(e.target.value));
+                dispatch(
+                  fetchCreateList({ name: e.target.value, boardId: id })
+                );
                 setIsAddList(false);
               }}
               autoFocus={true}

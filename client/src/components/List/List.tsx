@@ -1,9 +1,9 @@
 import {
   addTask,
-  deleteList,
   deleteTask,
-  editList,
   editTask,
+  fetchDeleteList,
+  fetchUpdateListName,
   type List as ListInterface,
 } from "../../store/slices/listsSlice";
 import { Task } from "../Task";
@@ -48,6 +48,7 @@ export const List = ({ list }: ListProps) => {
   const dispatch = useAppDispatch();
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isChangeHeader, setIsChangeHeader] = useState(false);
+  const [listName, setListName] = useState(list.name);
   const { handleSubmit, register, reset } = useForm<FormInputs>({
     defaultValues: {
       taskDescription: "",
@@ -74,7 +75,7 @@ export const List = ({ list }: ListProps) => {
     setIsAddTaskModalOpen(true);
   };
   const handleDeleteListClick = () => {
-    dispatch(deleteList(list.id));
+    dispatch(fetchDeleteList({ id: list.id }));
   };
   const onSubmit = (data: FormInputs) => {
     if (taskId !== null) {
@@ -98,12 +99,13 @@ export const List = ({ list }: ListProps) => {
         {isChangeHeader ? (
           <input
             className="modalInput"
-            onBlur={() => setIsChangeHeader(false)}
-            onChange={(e) =>
-              dispatch(editList({ listId: list.id, name: e.target.value }))
-            }
+            onBlur={() => {
+              setIsChangeHeader(false);
+              dispatch(fetchUpdateListName({ id: list.id, name: listName }));
+            }}
+            onChange={(e) => setListName(e.target.value)}
             autoFocus={true}
-            value={list.name}
+            value={listName}
           />
         ) : (
           <h4
@@ -111,7 +113,7 @@ export const List = ({ list }: ListProps) => {
               setIsChangeHeader(true);
             }}
           >
-            {list.name}
+            {listName}
           </h4>
         )}
       </div>

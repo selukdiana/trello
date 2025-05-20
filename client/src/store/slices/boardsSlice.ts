@@ -40,7 +40,7 @@ export const fetchCreateBoard = createAsyncThunk(
 
 export const fetchUpdateBoard = createAsyncThunk(
   "boards/fetchUpdateBoard",
-  async (data: { id: string; name: string }, { dispatch }) => {
+  async (data: Board, { dispatch }) => {
     const response = await fetch(`http://localhost:8080/api/updateBoard`, {
       method: "PATCH",
       headers: {

@@ -1,5 +1,9 @@
 import { arrayMove } from "@dnd-kit/sortable";
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import { v4 } from "uuid";
 
 export interface Task {
@@ -11,6 +15,7 @@ export interface List {
   id: string;
   name: string;
   tasks: Task[];
+  boardId: string;
 }
 interface ListsState {
   data: List[];
@@ -29,55 +34,96 @@ interface EditListPayload {
 }
 const initialState: ListsState = {
   data: [
-    {
-      id: "rrtgtgt",
-      name: "List1",
-      tasks: [
-        {
-          listId: "rrtgtgt",
-          id: v4(),
-          value:
-            "aa hihoih hoi ghghj hgujg gujgjuhuju juhjuhju ujhjkhj hjuuhjhjuu hjhjuh hjhkjh  hjhjkh hjkhjhjh jhjhjh jhjuhjh   j hjjh",
-        },
-      ],
-    },
-    {
-      id: "gyhggui",
-      name: "List2",
-      tasks: [
-        { listId: "gyhggui", id: v4(), value: "aa hihoih hoi " },
-        {
-          listId: "gyhggui",
-          id: v4(),
-          value:
-            "gygg uuiyui iyuiyh  uiyui yiyo  ioi guigui uhihy iooihoi ihoi oihoi ",
-        },
-      ],
-    },
-    { id: v4(), name: "List3", tasks: [] },
-    { id: v4(), name: "List4", tasks: [] },
+    // {
+    //   id: "rrtgtgt",
+    //   name: "List1",
+    //   tasks: [
+    //     {
+    //       listId: "rrtgtgt",
+    //       id: v4(),
+    //       value:
+    //         "aa hihoih hoi ghghj hgujg gujgjuhuju juhjuhju ujhjkhj hjuuhjhjuu hjhjuh hjhkjh  hjhjkh hjkhjhjh jhjhjh jhjuhjh   j hjjh",
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: "gyhggui",
+    //   name: "List2",
+    //   tasks: [
+    //     { listId: "gyhggui", id: v4(), value: "aa hihoih hoi " },
+    //     {
+    //       listId: "gyhggui",
+    //       id: v4(),
+    //       value:
+    //         "gygg uuiyui iyuiyh  uiyui yiyo  ioi guigui uhihy iooihoi ihoi oihoi ",
+    //     },
+    //   ],
+    // },
+    // { id: v4(), name: "List3", tasks: [] },
+    // { id: v4(), name: "List4", tasks: [] },
   ],
 };
+
+export const fetchAllLists = createAsyncThunk(
+  "lists/allLists",
+  async ({ id }: { id: string }) => {
+    const response = await fetch(
+      `http://localhost:8080/api/getAllLists?id=${id}`
+    );
+    const data: List[] = await response.json();
+    return data;
+  }
+);
+
+export const fetchCreateList = createAsyncThunk(
+  "lists/fetchCreateList",
+  async (data: { name: string; boardId: string }) => {
+    const response = await fetch(`http://localhost:8080/api/createList`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const list: List = await response.json();
+    return list;
+  }
+);
+
+export const fetchUpdateListName = createAsyncThunk(
+  "lists/fetchUpdateListName",
+  async (data: { id: string; name: string }) => {
+    const response = await fetch(`http://localhost:8080/api/updateListName`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const list: { id: string; name: string } = await response.json();
+    return list;
+  }
+);
+
+export const fetchDeleteList = createAsyncThunk(
+  "lists/fetchDeleteLists",
+  async (data: { id: string }) => {
+    const response = await fetch(
+      `http://localhost:8080/api/deleteList?id=${data.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    const listData: { id: string } = await response.json();
+    return listData.id;
+  }
+);
 
 const listsSlise = createSlice({
   name: "lists",
   initialState,
   reducers: {
-    addList(state, action: PayloadAction<string>) {
-      state.data.push({
-        id: v4(),
-        name: action.payload,
-        tasks: [],
-      });
-    },
-    deleteList(state, action: PayloadAction<string>) {
-      state.data = state.data.filter((list) => list.id !== action.payload);
-    },
-    editList(state, action: PayloadAction<EditListPayload>) {
-      const { listId, name } = action.payload;
-      const list = state.data.find((list) => list.id === listId);
-      if (list) list.name = name;
-    },
     addTask(
       state,
       action: PayloadAction<{ listId: string; taskDescription: string }>
@@ -172,12 +218,38 @@ const listsSlise = createSlice({
       targrtList.tasks.push(newTask);
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(fetchAllLists.fulfilled, (state, action) => {
+      state.data = action.payload;
+    });
+    builder.addCase(fetchAllLists.rejected, (state) => {
+      state.data = [];
+    });
+    builder.addCase(
+      fetchCreateList.fulfilled,
+      (state, action: PayloadAction<List>) => {
+        state.data.push(action.payload);
+      }
+    );
+    builder.addCase(
+      fetchUpdateListName.fulfilled,
+      (state, action: PayloadAction<{ id: string; name: string }>) => {
+        const { id, name } = action.payload;
+        const list = state.data.find((list) => list.id === id);
+        if (list) list.name = name;
+      }
+    );
+    builder.addCase(
+      fetchDeleteList.fulfilled,
+      (state, action: PayloadAction<string>) => {
+        const id = action.payload;
+        state.data = state.data.filter((list) => list.id !== id);
+      }
+    );
+  },
 });
 
 export const {
-  addList,
-  deleteList,
-  editList,
   addTask,
   editTask,
   deleteTask,
