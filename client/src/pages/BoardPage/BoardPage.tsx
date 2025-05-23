@@ -6,7 +6,7 @@ import {
   fetchAllLists,
   fetchCreateList,
   fetchListsState,
-  move,
+  moveBetweenLists,
   moveWithinList,
 } from "../../store/slices/listsSlice";
 import {
@@ -18,7 +18,6 @@ import {
   useSensors,
   type DragEndEvent,
   type DragOverEvent,
-  type DragStartEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core";
 import {
@@ -33,7 +32,6 @@ export const BoardPage = () => {
   const id = searchParams.get("id") as string;
   const [isAddList, setIsAddList] = useState(false);
   const listsArr = useAppSelector((state) => state.lists.data);
-  console.log(listsArr);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -42,7 +40,9 @@ export const BoardPage = () => {
     }),
     useSensor(KeyboardSensor)
   );
-  const handleDragStart = (event: DragStartEvent) => {};
+
+  const handleDragStart = () => {};
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -50,22 +50,23 @@ export const BoardPage = () => {
     const activeListId = findListId(active.id);
     const overListId = findListId(over.id);
     if (!activeListId || !overListId) return;
+
+    if (activeListId === overListId && active.id !== over.id) {
+      dispatch(
+        moveWithinList({
+          activeTask: active.data.current?.task,
+          overTask: over.data.current?.task,
+        })
+      );
+    }
     dispatch(
       fetchListsState({
         activeTask: active.data.current?.task,
         overTask: over.data.current?.task,
       })
     );
-    if (activeListId === overListId && active.id !== over.id) {
-      dispatch(
-        moveWithinList({
-          listId: activeListId as string,
-          activeId: active.id as string,
-          overId: over.id as string,
-        })
-      );
-    }
   };
+
   const findListId = (id: UniqueIdentifier) => {
     if (listsArr.some((list) => list.id === id)) {
       return id;
@@ -73,6 +74,7 @@ export const BoardPage = () => {
     return listsArr.find((list) => list.tasks.some((task) => task.id === id))
       ?.id;
   };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -83,7 +85,7 @@ export const BoardPage = () => {
     if (activeListId === overListId) return;
 
     dispatch(
-      move({
+      moveBetweenLists({
         activeListId: activeListId as string,
         overListId: overListId as string,
         activeId: active?.id as string,
@@ -91,9 +93,10 @@ export const BoardPage = () => {
       })
     );
   };
+
   useEffect(() => {
     dispatch(fetchAllLists({ id }));
-  }, []);
+  }, [dispatch, id]);
 
   return (
     <DndContext
@@ -113,9 +116,20 @@ export const BoardPage = () => {
               className={addListInput}
               onBlur={(e) => {
                 dispatch(
-                  fetchCreateList({ name: e.target.value, boardId: id })
+                  fetchCreateList({ name: e.currentTarget.value, boardId: id })
                 );
                 setIsAddList(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  dispatch(
+                    fetchCreateList({
+                      name: e.currentTarget.value,
+                      boardId: id,
+                    })
+                  );
+                  setIsAddList(false);
+                }
               }}
               autoFocus={true}
             />

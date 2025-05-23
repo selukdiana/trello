@@ -49,11 +49,12 @@ export const List = ({ list }: ListProps) => {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isChangeHeader, setIsChangeHeader] = useState(false);
   const [listName, setListName] = useState(list.name);
-  const { handleSubmit, register, reset } = useForm<FormInputs>({
+  const { handleSubmit, register, reset, getValues } = useForm<FormInputs>({
     defaultValues: {
       taskDescription: "",
     },
   });
+
   const handleEditTaskClick = (id: string) => {
     taskId = id;
     const task = tasks.find((task) => task.id === id);
@@ -74,9 +75,11 @@ export const List = ({ list }: ListProps) => {
     });
     setIsAddTaskModalOpen(true);
   };
+
   const handleDeleteListClick = () => {
     dispatch(fetchDeleteList({ id: list.id }));
   };
+
   const onSubmit = (data: FormInputs) => {
     if (taskId !== null) {
       dispatch(
@@ -103,7 +106,13 @@ export const List = ({ list }: ListProps) => {
               setIsChangeHeader(false);
               dispatch(fetchUpdateListName({ id: list.id, name: listName }));
             }}
-            onChange={(e) => setListName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setIsChangeHeader(false);
+                dispatch(fetchUpdateListName({ id: list.id, name: listName }));
+              }
+            }}
+            onChange={(e) => setListName(e.currentTarget.value)}
             autoFocus={true}
             value={listName}
           />
@@ -155,21 +164,29 @@ export const List = ({ list }: ListProps) => {
       >
         <RxCross2 />
       </span>
-      {isAddTaskModalOpen
-        ? createPortal(
-            <Modal setIsOpen={setIsAddTaskModalOpen} title="New Task">
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <textarea
-                  placeholder="Task"
-                  {...register("taskDescription")}
-                  className={classNames("modalInput", "textareaInput")}
-                />
-                <input type="submit" className="modalBtn" value="OK" />
-              </form>
-            </Modal>,
-            document.body
-          )
-        : null}
+      {createPortal(
+        <Modal
+          isOpen={isAddTaskModalOpen}
+          setIsOpen={setIsAddTaskModalOpen}
+          title="New Task"
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <textarea
+              placeholder="Task"
+              {...register("taskDescription")}
+              className={classNames("modalInput", "textareaInput")}
+              autoFocus={true}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  onSubmit(getValues());
+                }
+              }}
+            />
+            <input type="submit" className="modalBtn" value="OK" />
+          </form>
+        </Modal>,
+        document.body
+      )}
     </div>
   );
 };

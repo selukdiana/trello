@@ -34,30 +34,6 @@ export const Task = ({
     transition,
   };
 
-  // if (isDragging) {
-  //   return (
-  //     <p
-  //       ref={setNodeRef}
-  //       // className={styles.task}
-  //       style={{
-  //         color: "transparent",
-  //         opacity: 0.1,
-  //         backgroundColor: "black",
-  //         position: "static",
-  //         marginBottom: "10px",
-  //         padding: "10px",
-  //         paddingTop: "25px",
-  //         borderRadius: "10px",
-  //         display: "block",
-  //         width: "100%",
-  //         height: "auto",
-  //       }}
-  //     >
-  //       {task.value}
-  //     </p>
-  //   );
-  // }
-
   return (
     <p
       key={task.id}

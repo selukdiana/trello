@@ -6,15 +6,16 @@ export const sidePane = style({
   width: 300,
   height: " 100vh",
   overflowY: "auto",
-  backgroundColor: "rgb(243, 237, 237)",
+  backgroundColor: "white",
   zIndex: 1000,
   paddingLeft: 10,
 });
 
 export const log = style({
   color: "rgb(37, 35, 35)",
-  borderBottom: "1px solid gray",
-  padding: 4,
+  marginBottom: 8,
+  fontSize: 12,
+  borderBottom: "1px dotted black",
 });
 
 export const cross = style({

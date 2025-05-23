@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import List from "../models/listModel";
 import Log from "../models/logModel";
+import sequelize from "sequelize/types/sequelize";
 
 export const getAllLists = async (req: Request, res: Response) => {
   const boardId = req.query.id as string;
-  const data = await List.findAll({ where: { boardId } });
+  const data = await List.findAll({
+    where: { boardId },
+    order: [["createdAt", "asc"]],
+  });
   res.json(data);
 };
 

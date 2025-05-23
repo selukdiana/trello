@@ -5,6 +5,7 @@ import { burger, content, header } from "./Header.css";
 
 export const Header = () => {
   const [isSidePaneOpened, setIsSidePaneOpened] = useState(false);
+
   return (
     <header className={header}>
       <div className="container">

@@ -30,11 +30,12 @@ export const HomePage = () => {
   const dispatch = useAppDispatch();
   const boardsArr = useAppSelector((state) => state.boards.data);
   const [isAddBoardModalOpen, setIsAddBoardModalOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm<FormInputs>({
+  const { register, handleSubmit, reset, getValues } = useForm<FormInputs>({
     defaultValues: {
       boardName: "",
     },
   });
+
   const onSubmit = (data: FormInputs) => {
     if (boardId !== null) {
       dispatch(fetchUpdateBoard({ id: boardId, name: data.boardName }));
@@ -43,9 +44,11 @@ export const HomePage = () => {
     }
     setIsAddBoardModalOpen(false);
   };
+
   const handleDeleteBoard = (id: string) => {
     dispatch(fetchDeleteBoard({ id }));
   };
+
   const handleEditBoard = (id: string) => {
     boardId = id;
     const board = boardsArr.find((board) => board.id === id);
@@ -54,18 +57,20 @@ export const HomePage = () => {
     }
     setIsAddBoardModalOpen(true);
   };
+
   const handleCreateBoard = () => {
     boardId = null;
     reset({ boardName: "" });
     setIsAddBoardModalOpen(true);
   };
+
   const handleBoardClick = (id: string) => {
     navigate(`/board?id=${id}`);
   };
 
   useEffect(() => {
     dispatch(fetchAllBoards());
-  }, []);
+  }, [dispatch]);
 
   return (
     <section className={home}>
@@ -111,22 +116,30 @@ export const HomePage = () => {
           })}
         </div>
       </div>
-      {isAddBoardModalOpen
-        ? createPortal(
-            <Modal setIsOpen={setIsAddBoardModalOpen} title="New Board">
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <input
-                  type="text"
-                  placeholder="Border name"
-                  {...register("boardName")}
-                  className="modalInput"
-                />
-                <input type="submit" className="modalBtn" value="OK" />
-              </form>
-            </Modal>,
-            document.body
-          )
-        : null}
+      {createPortal(
+        <Modal
+          isOpen={isAddBoardModalOpen}
+          setIsOpen={setIsAddBoardModalOpen}
+          title="New Board"
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <input
+              type="text"
+              placeholder="Border name"
+              {...register("boardName")}
+              className="modalInput"
+              autoFocus={true}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  onSubmit(getValues());
+                }
+              }}
+            />
+            <input type="submit" className="modalBtn" value="OK" />
+          </form>
+        </Modal>,
+        document.body
+      )}
     </section>
   );
 };

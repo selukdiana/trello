@@ -8,10 +8,11 @@ interface SidePaneProps {
 export const SidePane = ({ toggleSidePane }: SidePaneProps) => {
   const dispatch = useAppDispatch();
   const logs = useAppSelector((state) => state.logs.data);
-  const appState = useAppSelector((state) => state);
+  const appState = useAppSelector((state) => state.lists);
+
   useEffect(() => {
     dispatch(fetchLogs());
-  }, [appState]);
+  }, [appState, dispatch]);
 
   return (
     <div className={sidePane}>
@@ -20,7 +21,7 @@ export const SidePane = ({ toggleSidePane }: SidePaneProps) => {
       </div>
       {logs.map((log) => (
         <p key={log.id} className={logStyles}>
-          {log.value}
+          <b>{log.value}</b>
         </p>
       ))}
     </div>

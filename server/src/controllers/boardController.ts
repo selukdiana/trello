@@ -3,7 +3,7 @@ import Board from "../models/boardModel";
 import Log from "../models/logModel";
 
 export const getAllBoards = async (req: Request, res: Response) => {
-  const data = await Board.findAll();
+  const data = await Board.findAll({ order: [["createdAt", "asc"]] });
   res.json(data);
 };
 

@@ -2,9 +2,10 @@ import { Optional, Model, DataTypes } from "sequelize";
 import sequelize from "../config/db";
 
 interface TaskAttributes {
-  id: string;
+  id: number;
   value: string;
   listId: string;
+  order: number;
 }
 
 interface TaskCreationAttributes extends Optional<TaskAttributes, "id"> {}
@@ -16,8 +17,8 @@ interface TaskInstance
 }
 const Task = sequelize.define<TaskInstance>("task", {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
   },
   value: {
@@ -25,6 +26,9 @@ const Task = sequelize.define<TaskInstance>("task", {
   },
   listId: {
     type: DataTypes.UUID,
+  },
+  order: {
+    type: DataTypes.INTEGER,
   },
 });
 

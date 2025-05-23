@@ -3,23 +3,15 @@ import Task from "../models/taskModel";
 import { Request, Response } from "express";
 
 export const moveTaskWithinList = async (req: Request, res: Response) => {
-  const { activeTask, overTask } = req.body;
+  const { activeTask, newOrder } = req.body;
   const active = await Task.findOne({ where: { id: activeTask.id } });
-  const over = await Task.findOne({ where: { id: overTask.id } });
-  active?.update({
-    id: overTask.id,
-    value: overTask.value,
-    listId: overTask.listId,
-  });
-  active?.save();
-  over?.update({
-    id: activeTask.id,
-    value: activeTask.value,
+  await active?.update({
     listId: activeTask.listId,
+    order: newOrder,
   });
-  over?.save();
+  await active?.save();
   await Log.create({
     value: `task moved <${activeTask.value}>`,
   });
-  res.status(200).json("ok");
+  res.status(200).json(active);
 };
